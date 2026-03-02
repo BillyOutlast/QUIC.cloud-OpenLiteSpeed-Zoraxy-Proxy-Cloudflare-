@@ -25,10 +25,41 @@ Force the backend server to resolve your domain directly to the reverse proxy, b
    ```bash
    sudo nano /etc/hosts
    ```
-3.Add your domain and point it to your Zoraxy Proxy IP:
+3. Add your domain and point it to your Zoraxy Proxy IP:
 ```bash
     192.168.31.2 yourdomain.com [www.yourdomain.com](https://www.yourdomain.com)
 ```
-4.Save and exit.
+4. Save and exit.
 
 Test it by running curl -I https://yourdomain.com. It should successfully hit your proxy and return an HTTP status code.
+
+### Step 2: Configure OpenLiteSpeed to Trust the Proxy
+OpenLiteSpeed needs to know that the Zoraxy IP is a trusted proxy so it correctly processes the forwarded client IPs and security headers.
+
+1. Log into your OpenLiteSpeed WebAdmin Console (usually `https://your-backend-ip:7080`).
+2. Navigate to **Server Configuration** > **Security**.
+3. Under **Access Control** > **Allowed List**, add your proxy IP with a trailing `T` (for Trusted):
+   ```text
+   192.168.31.2T
+4. Navigate to Server Configuration > General.
+5. Set Use Client IP in Header to Trusted IP Only.
+6. Perform a Graceful Restart of OpenLiteSpeed.
+
+## Step 3: Clear LiteSpeed Cache Overrides
+If you previously attempted to force an IP address in the WordPress plugin settings, it will break this new internal routing.
+
+1. Go to your WordPress Dashboard.
+
+2. Navigate to LiteSpeed Cache > General.
+
+3. Ensure the Server IP field is completely blank.
+
+4. Click Save Changes.
+
+## Step 4: Link to QUIC.cloud
+Click the Link to QUIC.cloud button again. The server will now properly route the self-test through the proxy, complete the handshake, and generate your domain key!
+
+
+***
+
+Now that the proxy routing is locked in and your cache is linked, would you like me to walk you through double-checking the Cloudflare SSL/TLS settings to make sure they are set to "Full (Strict)"?
